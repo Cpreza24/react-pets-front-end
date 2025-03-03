@@ -1,22 +1,41 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 
 const PetForm = (props) => {
-  // formData state to control the form.
-  const [formData, setFormData] = useState({
+  const initialState = {
     name: '',
     age: '',
     breed: '',
-  });
+  };
 
-  // handleChange function to update formData state.
+  const [formData, setFormData] = useState(initialState);
+
+  useEffect(() => {
+    if (props.selected) {
+      setFormData({
+        name: props.selected.name,
+        age: props.selected.age,
+        breed: props.selected.breed,
+      });
+    }
+  }, [props.selected]);
+
   const handleChange = (evt) => {
     setFormData({ ...formData, [evt.target.name]: evt.target.value });
   };
 
-  // And finally, the form itself.
+  const handleSubmit = (evt) => {
+    evt.preventDefault();
+
+    if (props.selected) {
+      props.handleUpdatePet(formData, props.selected._id);
+    } else {
+      props.handleAddPet(formData);
+    }
+  };
+
   return (
     <div>
-      <form>
+      <form onSubmit={handleSubmit}>
         <label htmlFor='name'> Name </label>
         <input
           id='name'
@@ -40,7 +59,9 @@ const PetForm = (props) => {
           value={formData.breed}
           onChange={handleChange}
         />
-        <button type='submit'>Add New Pet</button>
+        <button type='submit'>
+          {props.selected ? 'Update Pet' : 'Add New Pet'}
+        </button>
       </form>
     </div>
   );
